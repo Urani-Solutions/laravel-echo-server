@@ -3,9 +3,8 @@ import { Channel } from './channels';
 import { Server } from './server';
 import { HttpApi } from './api';
 import { Log } from './log';
-import * as fs from 'fs';
-const packageFile = require('../package.json');
-const { constants } = require('crypto');
+import packageFile from '../package.json';
+import { constants } from 'crypto';
 
 /**
  * Echo server class.
@@ -112,7 +111,7 @@ export class EchoServer {
             this.httpApi.init();
 
             this.onConnect();
-            this.listen().then(() => resolve(), err => Log.error(err));
+            this.listen().then(() => resolve(io), err => Log.error(err));
         });
     }
 
@@ -165,7 +164,7 @@ export class EchoServer {
      * Return a channel by its socket id.
      */
     find(socket_id: string): any {
-        return this.server.io.sockets.connected[socket_id];
+        return this.server.io.sockets.sockets.get(socket_id);
     }
 
     /**
@@ -183,7 +182,7 @@ export class EchoServer {
      * Broadcast to others on channel.
      */
     toOthers(socket: any, channel: string, message: any): boolean {
-        socket.broadcast.to(channel)
+        socket.to(channel)
             .emit(message.event, channel, message.data);
 
         return true
@@ -234,7 +233,7 @@ export class EchoServer {
      */
     onDisconnecting(socket: any): void {
         socket.on('disconnecting', (reason) => {
-            Object.keys(socket.rooms).forEach(room => {
+            socket.rooms.forEach(room => {
                 if (room !== socket.id) {
                     this.channel.leave(socket, room, reason);
                 }
