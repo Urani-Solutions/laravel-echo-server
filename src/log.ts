@@ -1,4 +1,4 @@
-import * as colors from 'colors';
+const colors = require('colors');
 
 function getTimestamp(): string {
     // This will use the local time of the server
