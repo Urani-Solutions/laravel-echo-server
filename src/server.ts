@@ -4,7 +4,7 @@ const https = require('https');
 const express = require('express');
 const url = require('url');
 const io = require('socket.io');
-const Log = require('./log');
+import { Log } from './log';
 
 export class Server {
     /**
