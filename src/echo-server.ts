@@ -3,7 +3,7 @@ import { Channel } from './channels';
 import { Server } from './server';
 import { HttpApi } from './api';
 import { Log } from './log';
-import packageFile from '../package.json';
+const packageFile = require('../package.json');
 import { constants } from 'crypto';
 
 /**
@@ -101,8 +101,8 @@ export class EchoServer {
                 this.init(io).then(() => {
                     Log.info('\nServer ready!\n');
                     resolve(this);
-                }, error => Log.error(error));
-            }, error => Log.error(error));
+                }, error => reject(error));
+            }, error => reject(error));
         });
     }
 
@@ -123,7 +123,7 @@ export class EchoServer {
             this.httpApi.init();
 
             this.onConnect();
-            this.listen().then(() => resolve(io), err => Log.error(err));
+            this.listen().then(() => resolve(io), err => reject(err));
         });
     }
 
@@ -168,7 +168,7 @@ export class EchoServer {
                 });
             });
 
-            Promise.all(subscribePromises).then(() => resolve());
+            Promise.all(subscribePromises).then(() => resolve(void 0), err => reject(err));
         });
     }
 
