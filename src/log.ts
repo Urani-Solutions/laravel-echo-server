@@ -1,20 +1,5 @@
 import colors from 'colors';
 
-colors.setTheme({
-    silly: 'rainbow',
-    input: 'grey',
-    verbose: 'cyan',
-    prompt: 'grey',
-    info: 'cyan',
-    data: 'grey',
-    help: 'cyan',
-    warn: 'yellow',
-    debug: 'blue',
-    error: 'red',
-    h1: 'grey',
-    h2: 'yellow'
-});
-
 function getTimestamp(): string {
     // This will use the local time of the server
     return new Date().toISOString();
