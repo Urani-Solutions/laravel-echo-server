@@ -91,7 +91,7 @@ export class Cli {
                         process.exit();
                     },
                     error => {
-                        console.error(colors.error(error));
+                        console.error(colors.red(error));
                     }
                 );
             },
@@ -281,7 +281,7 @@ export class Cli {
         fs.access(configFile, fs.F_OK, error => {
             if (error) {
                 console.error(
-                    colors.error("Error: The config file could not be found.")
+                    colors.red("Error: The config file could not be found.")
                 );
 
                 return false;
@@ -306,7 +306,7 @@ export class Cli {
                     );
                 } catch {
                     console.error(
-                        colors.error(
+                        colors.red(
                             "Error: There was a problem reading the existing lock file."
                         )
                     );
@@ -314,29 +314,20 @@ export class Cli {
 
                 if (lockProcess) {
                     try {
-                        process.kill(lockProcess, 0);
-
+                        process.kill(lockProcess, 0); // Check if process exists
                         if (yargs.argv.force) {
                             process.kill(lockProcess);
-
-                            console.log(
-                                colors.yellow(
-                                    "Warning: Closing process " +
-                                        lockProcess +
-                                        " because you used the '--force' option."
-                                )
-                            );
+                            console.log(colors.yellow("Warning: Closing process " +
+                                lockProcess +
+                                " because you used the '--force' option."));
                         } else {
-                            console.error(
-                                colors.error(
-                                    "Error: There is already a server running! Use the option '--force' to stop it and start another one."
-                                )
-                            );
-
+                            console.error(colors.red("Error: There is already a server running! Use the option '--force' to stop it and start another one."));
                             return false;
                         }
-                    } catch {
-                        // The process in the lock file doesn't exist, so continue
+                    } catch (err) {
+                        // Process does not exist, remove stale lock file
+                        fs.unlinkSync(lockFile);
+                        console.log(colors.yellow("Stale lock file found and removed. Starting new server..."));
                     }
                 }
             }
@@ -347,7 +338,7 @@ export class Cli {
                 error => {
                     if (error) {
                         console.error(
-                            colors.error("Error: Cannot write lock file.")
+                            colors.red("Error: Cannot write lock file.")
                         );
 
                         return false;
@@ -403,7 +394,7 @@ export class Cli {
                 );
             } catch {
                 console.error(
-                    colors.error(
+                    colors.red(
                         "Error: There was a problem reading the lock file."
                     )
                 );
@@ -418,11 +409,11 @@ export class Cli {
                     console.log(colors.green("Closed the running server."));
                 } catch (e) {
                     console.error(e);
-                    console.log(colors.error("No running servers to close."));
+                    console.log(colors.red("No running servers to close."));
                 }
             }
         } else {
-            console.log(colors.error("Error: Could not find any lock file."));
+            console.log(colors.red("Error: Could not find any lock file."));
         }
     }
 
@@ -562,7 +553,7 @@ export class Cli {
             data = JSON.parse(fs.readFileSync(file, "utf8"));
         } catch {
             console.error(
-                colors.error(
+                colors.red(
                     "Error: There was a problem reading the config file."
                 )
             );
