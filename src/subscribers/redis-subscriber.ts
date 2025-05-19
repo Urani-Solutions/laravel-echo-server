@@ -1,4 +1,4 @@
-var Redis = require('ioredis');
+import Redis from 'ioredis';
 import { Log } from './../log';
 import { Subscriber } from './subscriber';
 
@@ -23,7 +23,7 @@ export class RedisSubscriber implements Subscriber {
      *
      * @param {any} options
      */
-    constructor(private options) {
+    constructor(private options: any) {
         this._keyPrefix = options.databaseConfig.redis.keyPrefix || '';
         this._redis = new Redis(options.databaseConfig.redis);
         // Log all Redis errors
