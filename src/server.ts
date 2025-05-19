@@ -1,10 +1,10 @@
-var fs = require('fs');
-var http = require('http');
-var https = require('https');
-var express = require('express');
-var url = require('url');
-var io = require('socket.io');
-import { Log } from './log';
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+const express = require('express');
+const url = require('url');
+const io = require('socket.io');
+const Log = require('./log');
 
 export class Server {
     /**
@@ -24,7 +24,7 @@ export class Server {
     /**
      * Create a new server instance.
      */
-    constructor(private options) { }
+    constructor(private options: any) { }
 
     /**
      * Start the Socket.io server.
@@ -99,31 +99,43 @@ export class Server {
      */
     httpServer(secure: boolean) {
         this.express = express();
-        this.express.use((req, res, next) => {
-            for (var header in this.options.headers) {
+        this.express.use((req: any, res: any, next: any) => {
+            for (const header in this.options.headers) {
                 res.setHeader(header, this.options.headers[header]);
             }
             next();
         });
 
-        if (secure) {
-            var httpServer = https.createServer(this.options, this.express);
-        } else {
-            var httpServer = http.createServer(this.express);
-        }
+        // Declare httpServer once, assign based on protocol
+        const httpServer = secure
+            ? https.createServer(this.options, this.express)
+            : http.createServer(this.express);
+
+        // Log all HTTP server errors
+        httpServer.on('error', (err: any) => {
+            Log.error('HTTP Server Error:');
+            Log.error(err);
+        });
 
         httpServer.listen(this.getPort(), this.options.host);
 
         this.authorizeRequests();
 
-        return this.io = io(httpServer, this.options.socketio);
+        const socketServer = io(httpServer, this.options.socketio);
+        // Log all Socket.io errors
+        socketServer.on('error', (err: any) => {
+            Log.error('Socket.io Error:');
+            Log.error(err);
+        });
+
+        return this.io = socketServer;
     }
 
     /**
      * Attach global protection to HTTP routes, to verify the API key.
      */
     authorizeRequests(): void {
-        this.express.param('appId', (req, res, next) => {
+        this.express.param('appId', (req: any, res: any, next: any) => {
             if (!this.canAccess(req)) {
                 return this.unauthorizedResponse(req, res);
             }

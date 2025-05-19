@@ -1,4 +1,4 @@
-var colors = require('colors');
+import colors from 'colors';
 
 colors.setTheme({
     silly: 'rainbow',
@@ -15,6 +15,11 @@ colors.setTheme({
     h2: 'yellow'
 });
 
+function getTimestamp(): string {
+    // This will use the local time of the server
+    return new Date().toISOString();
+}
+
 export class Log {
     /**
      * Console log heading 1.
@@ -23,7 +28,7 @@ export class Log {
      * @return {void}
      */
     static title(message: any): void {
-        console.log(colors.bold(message));
+        console.log(`[${getTimestamp()}]`, colors.bold(message));
     }
 
     /**
@@ -33,7 +38,7 @@ export class Log {
      * @return {void}
      */
     static subtitle(message: any): void {
-        console.log(colors.h2.bold(message));
+        console.log(`[${getTimestamp()}]`, colors.yellow.bold(message));
     }
 
     /**
@@ -43,7 +48,7 @@ export class Log {
      * @return {void}
      */
     static info(message: any): void {
-        console.log(colors.info(message));
+        console.log(`[${getTimestamp()}]`, colors.cyan(message));
     }
 
     /**
@@ -53,7 +58,7 @@ export class Log {
      * @return {void}
      */
     static success(message: any): void {
-        console.log(colors.green('\u2714 '), message);
+        console.log(`[${getTimestamp()}]`, colors.green('\u2714 '), message);
     }
 
     /**
@@ -65,7 +70,7 @@ export class Log {
      * @return {void}
      */
     static error(message: any): void {
-        console.log(colors.error(message));
+        console.log(`[${getTimestamp()}]`, colors.red(message));
     }
 
     /**
@@ -75,6 +80,6 @@ export class Log {
      * @return {void}
      */
     static warning(message: any): void {
-        console.log(colors.warn('\u26A0 ' + message));
+        console.log(`[${getTimestamp()}]`, colors.yellow('\u26A0 ' + message));
     }
 }

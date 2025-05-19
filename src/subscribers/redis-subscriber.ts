@@ -1,4 +1,4 @@
-var Redis = require('ioredis');
+import Redis from 'ioredis';
 import { Log } from './../log';
 import { Subscriber } from './subscriber';
 
@@ -23,9 +23,14 @@ export class RedisSubscriber implements Subscriber {
      *
      * @param {any} options
      */
-    constructor(private options) {
+    constructor(private options: any) {
         this._keyPrefix = options.databaseConfig.redis.keyPrefix || '';
         this._redis = new Redis(options.databaseConfig.redis);
+        // Log all Redis errors
+        this._redis.on('error', (err) => {
+            Log.error('Redis Error:');
+            Log.error(err);
+        });
     }
 
     /**
@@ -60,7 +65,7 @@ export class RedisSubscriber implements Subscriber {
 
                 Log.success('Listening for redis events...');
 
-                resolve();
+                resolve(void 0);
             });
         });
     }
@@ -74,9 +79,11 @@ export class RedisSubscriber implements Subscriber {
         return new Promise((resolve, reject) => {
             try {
                 this._redis.disconnect();
-                resolve();
+                resolve(void 0);
             } catch(e) {
                 reject('Could not disconnect from redis -> ' + e);
+                // Optionally, for type safety, could use: reject(void 0);
+
             }
         });
     }

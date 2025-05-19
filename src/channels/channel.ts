@@ -26,7 +26,7 @@ export class Channel {
     /**
      * Create a new channel instance.
      */
-    constructor(private io, private options) {
+    constructor(private io: any, private options: any) {
         this.private = new PrivateChannel(options);
         this.presence = new PresenceChannel(io, options);
 
@@ -38,7 +38,7 @@ export class Channel {
     /**
      * Join a channel.
      */
-    join(socket, data): void {
+    join(socket: any, data: any): void {
         if (data.channel) {
             if (this.isPrivate(data.channel)) {
                 this.joinPrivate(socket, data);
@@ -52,7 +52,7 @@ export class Channel {
     /**
      * Trigger a client message
      */
-    clientEvent(socket, data): void {
+    clientEvent(socket: any, data: any): void {
         try {
             data = JSON.parse(data);
         } catch (e) {
@@ -63,8 +63,7 @@ export class Channel {
             if (this.isClientEvent(data.event) &&
                 this.isPrivate(data.channel) &&
                 this.isInChannel(socket, data.channel)) {
-                this.io.sockets.connected[socket.id]
-                    .broadcast.to(data.channel)
+                socket.to(data.channel)
                     .emit(data.event, data.channel, data.data);
             }
         }
@@ -123,8 +122,7 @@ export class Channel {
                 Log.error(error.reason);
             }
 
-            this.io.sockets.to(socket.id)
-                .emit('subscription_error', data.channel, error.status);
+            socket.emit('subscription_error', data.channel, error.status);
         });
     }
 
@@ -162,6 +160,6 @@ export class Channel {
      * Check if a socket has joined a channel.
      */
     isInChannel(socket: any, channel: string): boolean {
-        return !!socket.rooms[channel];
+        return socket.rooms && (typeof socket.rooms.has === 'function' ? socket.rooms.has(channel) : !!socket.rooms[channel]);
     }
 }

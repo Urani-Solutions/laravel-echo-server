@@ -1,6 +1,5 @@
 import { Log } from './../log';
 import { Subscriber } from './subscriber';
-var url = require('url');
 
 export class HttpSubscriber implements Subscriber {
     /**
@@ -8,19 +7,19 @@ export class HttpSubscriber implements Subscriber {
      *
      * @param  {any} express
      */
-    constructor(private express, private options) { }
+    constructor(private express: any, private options: any) { }
 
     /**
      * Subscribe to events to broadcast.
      *
      * @return {void}
      */
-    subscribe(callback): Promise<any> {
-        return new Promise((resolve, reject) => {
+    subscribe(callback: any): Promise<void> {
+        return new Promise((resolve) => {
             // Broadcast a message to a channel
-            this.express.post('/apps/:appId/events', (req, res) => {
+            this.express.post('/apps/:appId/events', (req: any, res: any) => {
                 let body: any = [];
-                res.on('error', (error) => {
+                res.on('error', (error: any) => {
                     if (this.options.devMode) {
                         Log.error(error);
                     }
@@ -32,22 +31,22 @@ export class HttpSubscriber implements Subscriber {
 
             Log.success('Listening for http events...');
 
-            resolve();
+            resolve(void 0);
         });
     }
 
     /**
      * Unsubscribe from events to broadcast.
      *
-     * @return {Promise}
+     * @return {Promise<void>}
      */
-    unsubscribe(): Promise<any> {
+    unsubscribe(): Promise<void> {
         return new Promise((resolve, reject) => {
             try {
-                this.express.post('/apps/:appId/events', (req, res) => {
+                this.express.post('/apps/:appId/events', (req: any, res: any) => {
                     res.status(404).send();
                 });
-                resolve();
+                resolve(void 0);
             } catch(e) {
                 reject('Could not overwrite the event endpoint -> ' + e);
             }
@@ -61,9 +60,9 @@ export class HttpSubscriber implements Subscriber {
      * @param  {any} res
      * @param  {any} body
      * @param  {Function} broadcast
-     * @return {boolean}
+     * @return {Promise<boolean>}
      */
-    handleData(req, res, body, broadcast): boolean {
+    handleData(req: any, res: any, body: any, broadcast: any): Promise<boolean> {
         body = JSON.parse(Buffer.concat(body).toString());
 
         if ((body.channels || body.channel) && body.name && body.data) {
@@ -103,12 +102,12 @@ export class HttpSubscriber implements Subscriber {
      * @param  {any} req
      * @param  {any} res
      * @param  {string} message
-     * @return {boolean}
+     * @return {Promise<boolean>}
      */
-    badResponse(req: any, res: any, message: string): boolean {
+    badResponse(req: any, res: any, message: string): Promise<boolean> {
         res.statusCode = 400;
         res.json({ error: message });
 
-        return false;
+        return Promise.resolve(false);
     }
 }
