@@ -9,6 +9,18 @@ import { constants } from 'crypto';
 /**
  * Echo server class.
  */
+// Global error handlers for process-level errors
+process.on('uncaughtException', (err) => {
+    Log.error('Uncaught Exception:');
+    Log.error(err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    Log.error('Unhandled Rejection at:');
+    Log.error(promise);
+    Log.error(reason);
+});
+
 export class EchoServer {
     /**
      * Default server options.

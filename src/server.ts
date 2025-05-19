@@ -112,11 +112,24 @@ export class Server {
             var httpServer = http.createServer(this.express);
         }
 
+        // Log all HTTP server errors
+        httpServer.on('error', (err) => {
+            Log.error('HTTP Server Error:');
+            Log.error(err);
+        });
+
         httpServer.listen(this.getPort(), this.options.host);
 
         this.authorizeRequests();
 
-        return this.io = io(httpServer, this.options.socketio);
+        const socketServer = io(httpServer, this.options.socketio);
+        // Log all Socket.io errors
+        socketServer.on('error', (err) => {
+            Log.error('Socket.io Error:');
+            Log.error(err);
+        });
+
+        return this.io = socketServer;
     }
 
     /**

@@ -26,6 +26,11 @@ export class RedisSubscriber implements Subscriber {
     constructor(private options) {
         this._keyPrefix = options.databaseConfig.redis.keyPrefix || '';
         this._redis = new Redis(options.databaseConfig.redis);
+        // Log all Redis errors
+        this._redis.on('error', (err) => {
+            Log.error('Redis Error:');
+            Log.error(err);
+        });
     }
 
     /**
